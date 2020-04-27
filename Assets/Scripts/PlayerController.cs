@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int arrowNumber; //atılacak ok sayısı
     [SerializeField] Text arrowNumberText;
     [SerializeField] AudioClip dieMusic; //ölme sesi
+    [SerializeField] GameObject winPanel, losePanel;
+
 
     // Start is called before the first frame update
     void Start()
@@ -75,7 +77,7 @@ public class PlayerController : MonoBehaviour
         #endregion
 
         #region Player'ın ok atmasının kontrolü
-        if (Input.GetMouseButtonDown(0) && arrowNumber > 0)
+        if (Input.GetKeyDown(KeyCode.LeftControl) && arrowNumber > 0)
         {
             if (attacked == false)
             {
@@ -129,17 +131,44 @@ public class PlayerController : MonoBehaviour
         //Debug.Log(collision.gameObject.name);
         if (collision.gameObject.CompareTag("Enemy"))
         {
+            GetComponent<TimeControl>().enabled = false;
             Die();
+        }
+        else if (collision.gameObject.CompareTag("Finish"))
+        {
+            Destroy(collision.gameObject);
+            GetComponent<TimeControl>().enabled = false;
+            StartCoroutine(Wait(true));
         }
     }
 
-    void Die()
+    public void Die()
     {
         GameObject.Find("SoundController").GetComponent<AudioSource>().clip = null;
         GameObject.Find("SoundController").GetComponent<AudioSource>().PlayOneShot(dieMusic);
         myAnimator.SetFloat("Speed", 0);
         myAnimator.SetTrigger("Die");
-        myBody.constraints = RigidbodyConstraints2D.FreezePosition;
+        myBody.constraints = RigidbodyConstraints2D.FreezeAll;
         enabled = false;  //PlayerController scriptini disable yapıyoruz.
+
+        StartCoroutine(Wait(false));
+
     }
+
+    IEnumerator Wait(bool win)
+    {
+        yield return new WaitForSecondsRealtime(2f);
+        Time.timeScale = 0;
+        if (win == true)
+        {
+            winPanel.SetActive(true); //winpanel.active = true;
+        }
+        else
+        {
+            losePanel.SetActive(true);       //losePanel.active = true;
+        }
+
+        
+    }
+
 }

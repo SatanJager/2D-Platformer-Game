@@ -14,6 +14,9 @@ public class ArrowController : MonoBehaviour
             if (collision.gameObject.CompareTag("Enemy"))
             {
                 Destroy(collision.gameObject);
+
+                GameObject.Find("LevelManager").GetComponent<LevelManager>().AddScore(100);
+
                 Instantiate(effect, collision.gameObject.transform.position, Quaternion.identity);
             }
         }
